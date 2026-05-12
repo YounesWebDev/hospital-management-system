@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Features;
@@ -71,6 +71,10 @@ class FortifyServiceProvider extends ServiceProvider
                 ->where('email', $login)
                 ->orWhere('username', $login)
                 ->first();
+
+                if ($user && $user->status !== 'active') {
+                    throw ValidationException::withMessages(['email' => 'Your account is deactivated']);
+                }
 
             if ($user && Hash::check((string) $request->input('password'), $user->password)) {
                 return $user;

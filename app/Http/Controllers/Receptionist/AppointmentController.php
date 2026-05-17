@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Receptionist;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use Inertia\Inertia;
 
 class AppointmentController extends Controller
 {
@@ -26,6 +27,9 @@ class AppointmentController extends Controller
                 'status' => $appointment->status,
             ]);
 
-        return $this->hospitalPage('receptionist/appointments/index', 'Appointments', $appointments);
+        return Inertia::render('receptionist/appointments/index', [
+            'title' => 'Appointments',
+            'records' => $appointments,
+        ]);
     }
 }

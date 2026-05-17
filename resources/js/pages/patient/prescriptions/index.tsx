@@ -1,102 +1,112 @@
 import { Head } from '@inertiajs/react';
-import { ClipboardList } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Search, FileText, Pill, Clock, User } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
-type PrescriptionRow = {
+interface Prescription {
     id: number;
-    medicine?: string | null;
-    doctor?: string | null;
-    diagnosis?: string | null;
-    instructions?: string | null;
-    created_at?: string | null;
+    medicine: string;
+    doctor: string;
+    diagnosis: string;
+    instructions: string;
+    created_at: string;
     items: Array<{
-        name?: string | null;
-        dosage?: string | null;
-        duration?: string | null;
+        name: string;
+        dosage: string;
+        duration: string;
     }>;
-};
+}
 
-type PatientPrescriptionsProps = {
-    title: string;
-    prescriptions?: PrescriptionRow[];
-};
+interface Props {
+    prescriptions?: Prescription[];
+}
 
-export default function PatientPrescriptions({
-    title,
-    prescriptions = [],
-}: PatientPrescriptionsProps) {
+export default function PrescriptionIndexPage({ prescriptions = [] }: Props) {
+    const [search, setSearch] = useState('');
+
+    const filtered = useMemo(() => {
+        const term = search.toLowerCase().trim();
+        if (term.length < 2) return prescriptions;
+        return prescriptions.filter(r =>
+            r.medicine?.toLowerCase().includes(term) ||
+            r.doctor?.toLowerCase().includes(term) ||
+            r.diagnosis?.toLowerCase().includes(term)
+        );
+    }, [search, prescriptions]);
+
     return (
         <>
-            <Head title={title} />
+            <Head title="My Prescriptions" />
 
-            <div className="space-y-8">
-                <section className="overflow-hidden rounded-lg border border-border/70 bg-gradient-to-br from-primary/16 via-primary/6 to-accent/12 p-6 shadow-sm md:p-8">
-                    <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                        <div className="max-w-2xl space-y-2">
-                            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border/70 bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
-                                <ClipboardList className="size-3.5 text-primary" />
-                                Patient records
-                            </div>
-                            <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">{title}</h1>
-                            <p className="max-w-xl text-sm leading-6 text-muted-foreground md:text-base">
-                                Review the medicine name, the doctor who prescribed it, and the current instructions.
-                            </p>
-                        </div>
-
-                        <div className="rounded-lg border border-border/70 bg-background/90 p-4 shadow-sm">
-                            <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                                Prescriptions
-                            </p>
-                            <p className="mt-2 text-2xl font-semibold text-foreground">{prescriptions.length}</p>
-                        </div>
+            <div className="space-y-6">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div className="space-y-1">
+                        <h1 className="text-3xl font-semibold tracking-tight">My Prescriptions</h1>
+                        <p className="text-muted-foreground">Review your medications and treatment instructions.</p>
                     </div>
-                </section>
+                </div>
 
-                <Card className="rounded-lg border-border/70 bg-card/95 shadow-sm">
-                    <CardHeader>
-                        <CardTitle className="text-lg">Prescription list</CardTitle>
-                        <CardDescription>
-                            Each prescription keeps the medicine name separate from the prescribing doctor.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {prescriptions.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">No prescriptions available.</p>
-                        ) : (
-                            prescriptions.map((prescription) => (
-                                <div key={prescription.id} className="rounded-lg border border-border/70 bg-muted/25 p-4">
-                                    <div className="flex items-center justify-between gap-3">
-                                        <p className="font-medium text-foreground">
-                                            {prescription.medicine ?? 'Prescription'}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {prescription.created_at ?? ''}
-                                        </p>
+                <div className="relative max-w-md">
+                    <Search className="absolute left-3 top-3 size-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Search by medicine, doctor or diagnosis..."
+                        className="pl-9"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {filtered.length > 0 ? (
+                        filtered.map((prescription) => (
+                            <Card key={prescription.id} className="group hover:border-primary/50 transition-colors">
+                                <CardHeader className="p-4 space-y-1">
+                                    <div className="flex items-center justify-between">
+                                        <Badge variant="outline" className="font-mono text-[10px]">
+                                            Prescription
+                                        </Badge>
+                                        <span className="text-xs text-muted-foreground flex items-center">
+                                            <Clock className="mr-1 size-3" />
+                                            {prescription.created_at ? new Date(prescription.created_at).toLocaleDateString() : 'N/A'}
+                                        </span>
                                     </div>
-                                    <p className="mt-2 text-sm text-muted-foreground">
-                                        Prescribed by {prescription.doctor ?? 'Unknown doctor'}
-                                    </p>
-                                    <p className="mt-2 text-sm text-muted-foreground">
-                                        Diagnosis: {prescription.diagnosis ?? 'No diagnosis recorded.'}
-                                    </p>
-                                    <p className="mt-2 text-sm text-muted-foreground">
-                                        {prescription.instructions ?? 'No instructions recorded.'}
-                                    </p>
-                                    <div className="mt-3 space-y-2">
-                                        {prescription.items.map((item, index) => (
-                                            <div key={index} className="rounded-md border border-border/60 bg-background/80 px-3 py-2 text-sm">
-                                                <span className="font-medium text-foreground">{item.name ?? 'Medicine'}</span>
-                                                <span className="text-muted-foreground">
-                                                    {' '}• {item.dosage ?? 'No dosage'} • {item.duration ?? 'No duration'}
-                                                </span>
-                                            </div>
-                                        ))}
+                                    <CardTitle className="flex items-center gap-2 text-lg">
+                                        <Pill className="size-4 text-primary" />
+                                        {prescription.medicine || 'Medication'}
+                                    </CardTitle>
+                                    <CardDescription>
+                                        Prescribed by: {prescription.doctor || 'TBD'}
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4 p-4 pt-0">
+                                    <div className="space-y-2 text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <User className="size-3 text-primary" />
+                                            <span className="font-medium text-foreground">Diagnosis: </span>
+                                            <span className="text-muted-foreground italic">
+                                                {prescription.diagnosis || 'N/A'}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <FileText className="size-3 text-primary" />
+                                            <span className="font-medium text-foreground">Instructions: </span>
+                                            <span className="text-muted-foreground">
+                                                {prescription.instructions || 'N/A'}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                            ))
-                        )}
-                    </CardContent>
-                </Card>
+                                </CardContent>
+                            </Card>
+                        ))
+                    ) : (
+                        <div className="col-span-full text-center py-12 border rounded-lg bg-muted/20">
+                            <Pill className="mx-auto size-12 text-muted-foreground/50 mb-3" />
+                            <p className="text-muted-foreground">No prescriptions found matching your search.</p>
+                        </div>
+                    )}
+                </div>
             </div>
         </>
     );

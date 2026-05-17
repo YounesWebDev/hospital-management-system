@@ -11,10 +11,9 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { dashboard, login } from '@/routes';
 
-// Main feature cards shown on the public home page.
 const features = [
     {
         title: 'Patient files',
@@ -42,7 +41,6 @@ const features = [
     },
 ];
 
-// Simple role list. Permissions are added later in the project plan.
 const roles = [
     'Admin',
     'Receptionist',
@@ -63,161 +61,138 @@ export default function Home() {
             <Head title="Hospital Management System" />
 
             <main className="min-h-screen bg-background text-foreground">
-                <section className="border-b bg-muted/30">
-                    <div className="mx-auto grid min-h-[88vh] w-full max-w-7xl grid-cols-1 gap-10 px-6 py-8 lg:grid-cols-[1fr_0.9fr] lg:items-center lg:px-8">
-                        <div className="flex flex-col gap-8">
-                            <nav className="flex items-center justify-between gap-4">
-                                <Link
-                                    href="/"
-                                    className="flex items-center gap-3 text-sm font-semibold"
-                                >
-                                    <span className="flex size-9 items-center justify-center rounded-md bg-teal-600 text-white">
-                                        <Activity className="size-5" />
-                                    </span>
-                                    HospitalCare
-                                </Link>
+                <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8 space-y-16">
+                    {/* Hero Section */}
+                    <div className="flex flex-col gap-12 lg:flex-row lg:items-center">
+                        <div className="flex-1 space-y-8">
+                            <div className="space-y-4">
+                                <Badge variant="outline" className="px-3 py-1 text-sm font-medium">
+                                    HospitalCare Operations
+                                </Badge>
+                                <h1 className="text-5xl font-bold tracking-tight sm:text-6xl leading-tight">
+                                    Integrated System for <span className="text-primary">Modern Healthcare</span>
+                                </h1>
+                                <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
+                                    Streamline your clinic with a unified platform for patient registration,
+                                    doctor visits, laboratory requests, and financial management.
+                                </p>
+                            </div>
 
-                                <Button asChild variant="outline" size="sm">
+                            <div className="flex flex-wrap gap-4">
+                                <Button asChild size="lg" className="px-8">
                                     <Link href={entryRoute}>
-                                        {auth.user ? 'Dashboard' : 'Log in'}
+                                        {auth.user ? 'Open Dashboard' : 'Access System'}
                                     </Link>
                                 </Button>
-                            </nav>
-
-                            <div className="max-w-2xl space-y-6">
-                                <Badge className="w-fit bg-teal-600 text-white hover:bg-teal-600">
-                                    Clinic operations
-                                </Badge>
-                                <div className="space-y-4">
-                                    <h1 className="text-4xl leading-tight font-semibold tracking-normal sm:text-5xl">
-                                        Hospital management system for daily
-                                        patient care.
-                                    </h1>
-                                    <p className="max-w-xl text-base leading-7 text-muted-foreground">
-                                        Manage staff, patient registration,
-                                        doctor visits, lab requests, billing,
-                                        payments, and patient portal access from
-                                        one Laravel and React application.
-                                    </p>
-                                </div>
-
-                                <div className="flex flex-col gap-3 sm:flex-row">
-                                    <Button
-                                        asChild
-                                        className="bg-teal-600 hover:bg-teal-700"
-                                    >
-                                        <Link href={entryRoute}>
-                                            {auth.user
-                                                ? 'Open dashboard'
-                                                : 'Log in to system'}
-                                        </Link>
-                                    </Button>
-                                    <Button asChild variant="outline">
-                                        <a href="#roles">View roles</a>
-                                    </Button>
-                                </div>
+                                <Button asChild variant="outline" size="lg">
+                                    <a href="#features">Explore Features</a>
+                                </Button>
                             </div>
                         </div>
 
-                        <div className="rounded-lg border bg-card p-4 shadow-sm">
-                            <div className="flex items-center justify-between border-b pb-4">
-                                <div>
-                                    <p className="text-sm font-medium">Today</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Clinic activity overview
-                                    </p>
-                                </div>
-                                <Badge variant="secondary">Live</Badge>
-                            </div>
-
-                            <div className="grid gap-3 py-4 sm:grid-cols-2">
-                                {[
-                                    ['Patients', '128', Users],
-                                    ['Appointments', '24', CalendarDays],
-                                    ['Lab requests', '16', FlaskConical],
-                                    ['Payments', '38', ReceiptText],
-                                ].map(([label, value, Icon]) => (
-                                    <div
-                                        key={label as string}
-                                        className="rounded-md border bg-background p-4"
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-sm text-muted-foreground">
-                                                {label as string}
-                                            </p>
-                                            <Icon className="size-4 text-teal-600" />
+                        <div className="flex-1 relative">
+                            <Card className="relative overflow-hidden border-border/60 shadow-2xl bg-card/50 backdrop-blur-sm">
+                                <CardHeader className="border-b border-border/60 bg-muted/30 p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div className="space-y-1">
+                                            <p className="text-sm font-semibold">Live System Overview</p>
+                                            <p className="text-xs text-muted-foreground">Real-time activity snapshot</p>
                                         </div>
-                                        <p className="mt-3 text-2xl font-semibold">
-                                            {value as string}
-                                        </p>
+                                        <Badge className="bg-emerald-500 text-white animate-pulse">Live</Badge>
                                     </div>
-                                ))}
-                            </div>
-
-                            <div className="space-y-3 rounded-md bg-muted/50 p-4">
-                                {[
-                                    'Doctor created an appointment',
-                                    'Lab uploaded an analysis result',
-                                    'Accountant recorded a payment',
-                                ].map((item) => (
-                                    <div
-                                        key={item}
-                                        className="flex items-center gap-3 text-sm"
-                                    >
-                                        <ShieldCheck className="size-4 text-emerald-600" />
-                                        <span>{item}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section className="mx-auto w-full max-w-7xl px-6 py-14 lg:px-8">
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                        {features.map((feature) => (
-                            <Card key={feature.title} className="rounded-lg">
-                                <CardHeader>
-                                    <feature.icon className="size-5 text-teal-600" />
-                                    <CardTitle className="text-base">
-                                        {feature.title}
-                                    </CardTitle>
                                 </CardHeader>
-                                <CardContent className="text-sm leading-6 text-muted-foreground">
-                                    {feature.description}
+                                <CardContent className="p-6 space-y-6">
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        {[
+                                            ['Patients', '128', Users],
+                                            ['Appointments', '24', CalendarDays],
+                                            ['Lab requests', '16', FlaskConical],
+                                            ['Payments', '38', ReceiptText],
+                                        ].map(([label, value, Icon]) => (
+                                            <div
+                                                key={label as string}
+                                                className="rounded-xl border bg-background p-4 transition-all hover:border-primary/50"
+                                            >
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                                        {label as string}
+                                                    </p>
+                                                    <Icon className="size-4 text-primary" />
+                                                </div>
+                                                <p className="text-2xl font-bold tracking-tight">
+                                                    {value as string}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="space-y-3 rounded-xl bg-muted/50 p-4 border border-border/40">
+                                        {[
+                                            'Doctor created a new appointment',
+                                            'Lab technician uploaded analysis result',
+                                            'Accountant processed a payment',
+                                        ].map((item) => (
+                                            <div
+                                                key={item}
+                                                className="flex items-center gap-3 text-sm text-muted-foreground"
+                                            >
+                                                <ShieldCheck className="size-4 text-emerald-600" />
+                                                <span>{item}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </CardContent>
                             </Card>
-                        ))}
+                        </div>
                     </div>
-                </section>
 
-                <section
-                    id="roles"
-                    className="border-t bg-muted/30 px-6 py-12 lg:px-8"
-                >
-                    <div className="mx-auto flex w-full max-w-7xl flex-col gap-5">
-                        <div>
-                            <h2 className="text-2xl font-semibold">
-                                Role-based access
-                            </h2>
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                Each team member sees only the workflow they
-                                need.
+                    {/* Features Grid */}
+                    <div id="features" className="space-y-10">
+                        <div className="text-center space-y-3">
+                            <h2 className="text-3xl font-bold tracking-tight">Platform Capabilities</h2>
+                            <p className="text-muted-foreground max-w-2xl mx-auto">
+                                A robust suite of tools designed to handle every aspect of hospital management.
                             </p>
                         </div>
-                        <div className="flex flex-wrap gap-2">
+
+                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                            {features.map((feature) => (
+                                <Card key={feature.title} className="group transition-all hover:-translate-y-1 hover:border-primary/50">
+                                    <CardHeader className="p-6 space-y-4">
+                                        <div className="p-2 rounded-lg bg-primary/10 w-fit">
+                                            <feature.icon className="size-6 text-primary" />
+                                        </div>
+                                        <CardTitle className="text-lg">{feature.title}</CardTitle>
+                                        <CardDescription className="text-sm leading-relaxed">
+                                            {feature.description}
+                                        </CardDescription>
+                                    </CardHeader>
+                                </Card>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Roles Section */}
+                    <div id="roles" className="border-t pt-16 space-y-10">
+                        <div className="text-center space-y-3">
+                            <h2 className="text-3xl font-bold tracking-tight">Role-Based Access Control</h2>
+                            <p className="text-muted-foreground max-w-2xl mx-auto">
+                                Specialized interfaces for every member of the medical team.
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap justify-center gap-3">
                             {roles.map((role) => (
                                 <Badge
                                     key={role}
-                                    variant="outline"
-                                    className="rounded-md px-3 py-1.5"
+                                    variant="secondary"
+                                    className="rounded-full px-4 py-1.5 text-sm font-medium"
                                 >
                                     {role}
                                 </Badge>
                             ))}
                         </div>
                     </div>
-                </section>
+                </div>
             </main>
         </>
     );

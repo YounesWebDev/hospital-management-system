@@ -12,6 +12,47 @@ use Inertia\Inertia;
 class AnalysisRequestController extends Controller
 {
     /**
+     * List analysis requests for a doctor.
+     */
+    public function index(Request $request)
+    {
+        $search = $request->string('search');
+        $doctorId = DoctorProfile::query()->where('user_id', $request->user()->id)->value('id');
+
+        $requests = AnalysisRequest::query()
+            ->with(['patient.user'])
+            ->where('doctor_id', $doctorId)
+            ->when($search, function ($query, $search) {
+                $query->whereHas('patient', function ($q) use ($search) {
+                    $q->where('patient_code', 'like', "%{$search}%")
+                      ->orWhereHas('user', fn($u) => $u->where('name', 'like', "%{$search}%"));
+                });
+            })
+            ->latest()
+            ->paginate(12);
+
+        return Inertia::render('doctor/analysis-requests/index', [
+            'analysisRequests' => $requests,
+            'filters' => [
+                'search' => $search,
+            ],
+            'actions' => [
+                'create' => route('doctor.analysis-requests.create'),
+            ],
+        ]);
+    }
+
+    /**
+     * Show a specific analysis request.
+     */
+    public function show(AnalysisRequest $analysisRequest)
+    {
+        return Inertia::render('doctor/analysis-requests/show', [
+            'analysisRequest' => $analysisRequest->load(['patient.user']),
+        ]);
+    }
+
+    /**
      * Show analysis request form.
      */
     public function create()
@@ -33,6 +74,7 @@ class AnalysisRequestController extends Controller
             ],
         ]);
     }
+
 
     /**
      * Store a doctor analysis request.

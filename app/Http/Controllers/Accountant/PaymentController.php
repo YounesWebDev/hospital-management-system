@@ -12,6 +12,31 @@ use Inertia\Inertia;
 class PaymentController extends Controller
 {
     /**
+     * Show payment history for the accountant.
+     */
+    public function index()
+    {
+        $payments = Payment::query()
+            ->with(['patient.user:id,name', 'billingRecord'])
+            ->latest()
+            ->get()
+            ->map(fn (Payment $payment) => [
+                'id' => $payment->id,
+                'amount' => $payment->amount_paid,
+                'date' => $payment->paid_at?->toDateString(),
+                'method' => $payment->payment_method,
+                'patient' => $payment->patient?->user?->name,
+                'receipt' => $payment->receipt_number,
+                'status' => $payment->billingRecord?->status ?? 'N/A',
+            ]);
+
+        return Inertia::render('accountant/payments/index', [
+            'title' => 'Payment History',
+            'records' => $payments,
+        ]);
+    }
+
+    /**
      * Show payment creation form.
      */
     public function create(BillingRecord $billing)

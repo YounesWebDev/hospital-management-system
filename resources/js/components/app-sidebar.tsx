@@ -1,12 +1,13 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Activity,
+    Banknote,
     CalendarDays,
     ClipboardList,
+    FileText,
     FlaskConical,
     LayoutGrid,
     ReceiptText,
-    Settings,
     Stethoscope,
     Users,
 } from 'lucide-react';
@@ -23,6 +24,12 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import admin from '@/routes/admin';
+import receptionist from '@/routes/receptionist';
+import doctor from '@/routes/doctor';
+import lab from '@/routes/lab';
+import accountant from '@/routes/accountant';
+import patient from '@/routes/patient';
 import type { NavItem } from '@/types';
 
 export function AppSidebar() {
@@ -75,12 +82,12 @@ export function AppSidebar() {
  */
 function navigationFor(role: string): NavItem[] {
     const dashboards: Record<string, string> = {
-        admin: '/admin/dashboard',
-        receptionist: '/receptionist/dashboard',
-        doctor: '/doctor/dashboard',
-        lab_technician: '/lab/dashboard',
-        accountant: '/accountant/dashboard',
-        patient: '/patient/dashboard',
+        admin: admin.dashboard.url(),
+        receptionist: receptionist.dashboard.url(),
+        doctor: doctor.dashboard.url(),
+        lab_technician: lab.dashboard.url(),
+        accountant: accountant.dashboard.url(),
+        patient: patient.dashboard.url(),
     };
 
     const common = [
@@ -94,17 +101,20 @@ function navigationFor(role: string): NavItem[] {
     const items: Record<string, NavItem[]> = {
         admin: [
             ...common,
-            { title: 'Staff', href: '/admin/staff', icon: Users },
-            { title: 'Patients', href: '/admin/patients', icon: ClipboardList },
-            { title: 'Reports', href: '/admin/reports', icon: Activity },
-            { title: 'Settings', href: '/admin/settings', icon: Settings },
+            { title: 'Staff', href: admin.staff.index.url(), icon: Users },
+            { title: 'Patients', href: admin.patients.index.url(), icon: ClipboardList },
+            { title: 'Appointments', href: admin.appointments.index.url(), icon: CalendarDays },
+            { title: 'Analyses', href: admin.analyses.index.url(), icon: FlaskConical },
+            { title: 'Billing', href: admin.billing.index.url(), icon: ReceiptText },
+            { title: 'Payments', href: admin.payments.index.url(), icon: Banknote },
+            { title: 'Reports', href: admin.reports.index.url(), icon: Activity },
         ],
         receptionist: [
             ...common,
-            { title: 'Patients', href: '/receptionist/patients', icon: Users },
+            { title: 'Patients', href: receptionist.patients.index.url(), icon: Users },
             {
                 title: 'Appointments',
-                href: '/receptionist/appointments',
+                href: receptionist.appointments.index.url(),
                 icon: CalendarDays,
             },
         ],
@@ -112,22 +122,27 @@ function navigationFor(role: string): NavItem[] {
             ...common,
             {
                 title: 'Patients',
-                href: '/doctor/patients/search',
+                href: doctor.patients.search.url(),
                 icon: Stethoscope,
             },
             {
+                title: 'Appointments',
+                href: doctor.appointments.index.url(),
+                icon: CalendarDays,
+            },
+            {
                 title: 'Prescriptions',
-                href: '/doctor/prescriptions/create',
+                href: doctor.prescriptions.index.url(),
                 icon: ClipboardList,
             },
             {
                 title: 'Analyses',
-                href: '/doctor/analysis-requests/create',
+                href: doctor.analysisRequests.index.url(),
                 icon: FlaskConical,
             },
             {
                 title: 'Billing',
-                href: '/doctor/billing/create',
+                href: doctor.billing.index.url(),
                 icon: ReceiptText,
             },
         ],
@@ -135,38 +150,53 @@ function navigationFor(role: string): NavItem[] {
             ...common,
             {
                 title: 'Analysis Requests',
-                href: '/lab/analysis-requests',
+                href: lab.analysisRequests.index.url(),
                 icon: FlaskConical,
+            },
+            {
+                title: 'Analysis Results',
+                href: lab.analysisResults.index.url(),
+                icon: FileText,
             },
         ],
         accountant: [
             ...common,
             {
-                title: 'Patient Billing',
-                href: '/accountant/patients/search',
+                title: 'Patient Search',
+                href: accountant.patients.search.url(),
+                icon: Users,
+            },
+            {
+                title: 'Billing Overview',
+                href: accountant.billing.index.url(),
                 icon: ReceiptText,
+            },
+            {
+                title: 'Payment History',
+                href: accountant.payments.index.url(),
+                icon: Banknote,
             },
         ],
         patient: [
             ...common,
-            { title: 'Profile', href: '/patient/profile', icon: Users },
+            { title: 'Profile', href: patient.profile.url(), icon: Users },
             {
                 title: 'Appointments',
-                href: '/patient/appointments',
+                href: patient.appointments.index.url(),
                 icon: CalendarDays,
             },
             {
                 title: 'Prescriptions',
-                href: '/patient/prescriptions',
+                href: patient.prescriptions.index.url(),
                 icon: ClipboardList,
             },
             {
                 title: 'Analyses',
-                href: '/patient/analyses',
+                href: patient.analyses.index.url(),
                 icon: FlaskConical,
             },
-            { title: 'Billing', href: '/patient/billing', icon: ReceiptText },
-            { title: 'Payments', href: '/patient/payments', icon: ReceiptText },
+            { title: 'Billing', href: patient.billing.index.url(), icon: ReceiptText },
+            { title: 'Payments', href: patient.payments.index.url(), icon: Banknote },
         ],
     };
 

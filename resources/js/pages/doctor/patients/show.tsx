@@ -172,7 +172,7 @@ export default function PatientShow({
 
                 <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
                     <div className="space-y-6">
-                        <Card className="rounded-lg border-border/70 bg-card/95 shadow-sm">
+                        <Card className="rounded-lg border border-primary bg-card/95 shadow-sm">
                             <CardHeader>
                                 <CardTitle className="text-lg">Medical notes</CardTitle>
                                 <CardDescription>
@@ -184,7 +184,7 @@ export default function PatientShow({
                                     <p className="text-sm text-muted-foreground">No medical notes have been added yet.</p>
                                 ) : (
                                     medicalNotes.map((note) => (
-                                        <div key={note.id} className="rounded-lg border border-border/70 bg-muted/25 p-4">
+                                        <div key={note.id} className="rounded-lg border border-primary bg-card/50 p-4 transition-colors hover:bg-card/80">
                                             <div className="flex items-center justify-between gap-3">
                                                 <p className="text-sm font-medium text-foreground">
                                                     {note.doctor ?? 'Doctor note'}
@@ -201,7 +201,7 @@ export default function PatientShow({
                         </Card>
 
                         <div className="grid gap-6 xl:grid-cols-2">
-                            <Card className="rounded-lg border-border/70 bg-card/95 shadow-sm">
+                            <Card className="rounded-lg border border-primary bg-card/95 shadow-sm">
                                 <CardHeader>
                                     <CardTitle className="text-base">Prescriptions</CardTitle>
                                 </CardHeader>
@@ -210,7 +210,7 @@ export default function PatientShow({
                                         <p className="text-sm text-muted-foreground">No prescriptions available.</p>
                                     ) : (
                                         prescriptions.map((prescription) => (
-                                            <div key={prescription.id} className="rounded-lg border border-border/70 bg-muted/25 p-4">
+                                            <div key={prescription.id} className="rounded-lg border border-primary bg-card/50 p-4 transition-colors hover:bg-card/80">
                                                 <div className="flex items-center justify-between gap-3">
                                                     <p className="font-medium text-foreground">
                                                         {prescription.medicine ?? 'Prescription'}
@@ -244,7 +244,7 @@ export default function PatientShow({
                                 </CardContent>
                             </Card>
 
-                            <Card className="rounded-lg border-border/70 bg-card/95 shadow-sm">
+                            <Card className="rounded-lg border border-primary bg-card/95 shadow-sm">
                                 <CardHeader>
                                     <CardTitle className="text-base">Analysis requests</CardTitle>
                                 </CardHeader>
@@ -253,7 +253,7 @@ export default function PatientShow({
                                         <p className="text-sm text-muted-foreground">No analysis requests available.</p>
                                     ) : (
                                         analyses.map((analysis) => (
-                                            <div key={analysis.id} className="rounded-lg border border-border/70 bg-muted/25 p-4">
+                                            <div key={analysis.id} className="rounded-lg border border-primary bg-card/50 p-4 transition-colors hover:bg-card/80">
                                                 <div className="flex items-center justify-between gap-3">
                                                     <p className="font-medium text-foreground">{analysis.type ?? 'Analysis'}</p>
                                                     <AnalysisStatusBadge status={analysis.status} />
@@ -272,7 +272,7 @@ export default function PatientShow({
                         </div>
 
                         <div className="grid gap-6 xl:grid-cols-2">
-                            <Card className="rounded-lg border-border/70 bg-card/95 shadow-sm">
+                            <Card className="rounded-lg border border-primary bg-card/95 shadow-sm">
                                 <CardHeader>
                                     <CardTitle className="text-base">Appointments</CardTitle>
                                 </CardHeader>
@@ -281,7 +281,7 @@ export default function PatientShow({
                                         <p className="text-sm text-muted-foreground">No appointments recorded.</p>
                                     ) : (
                                         appointments.map((appointment) => (
-                                            <div key={appointment.id} className="rounded-lg border border-border/70 bg-muted/25 p-4">
+                                            <div key={appointment.id} className="rounded-lg border border-primary bg-card/50 p-4 transition-colors hover:bg-card/80">
                                                 <div className="flex items-center justify-between gap-3">
                                                     <p className="font-medium text-foreground capitalize">
                                                         {appointment.type ?? 'Appointment'}
@@ -300,7 +300,7 @@ export default function PatientShow({
                                 </CardContent>
                             </Card>
 
-                            <Card className="rounded-lg border-border/70 bg-card/95 shadow-sm">
+                            <Card className="rounded-lg border border-primary bg-card/95 shadow-sm">
                                 <CardHeader>
                                     <CardTitle className="text-base">Billing records</CardTitle>
                                 </CardHeader>
@@ -309,7 +309,7 @@ export default function PatientShow({
                                         <p className="text-sm text-muted-foreground">No billing records recorded.</p>
                                     ) : (
                                         billingRecords.map((billing) => (
-                                            <div key={billing.id} className="rounded-lg border border-border/70 bg-muted/25 p-4">
+                                            <div key={billing.id} className="rounded-lg border border-primary bg-card/50 p-4 transition-colors hover:bg-card/80">
                                                 <div className="flex items-center justify-between gap-3">
                                                     <p className="font-medium text-foreground">
                                                         ${billing.total ?? 0} total
@@ -330,7 +330,7 @@ export default function PatientShow({
                     </div>
 
                     <div className="space-y-6">
-                        <Card className="rounded-lg border-border/70 bg-card/95 shadow-sm">
+                        <Card className="rounded-lg border border-primary bg-primary/5 shadow-sm">
                             <CardHeader>
                                 <div className="flex items-center gap-2">
                                     <Activity className="size-4 text-primary" />

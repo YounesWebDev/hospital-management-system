@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class NotificationController extends Controller
 {
@@ -15,8 +16,15 @@ class NotificationController extends Controller
     public function index()
     {
         // Show the newest notifications first and expose the route used to send a new one.
-        return $this->hospitalPage('receptionist/notifications/index', 'Notifications', Notification::query()->latest()->get(), [
-            'store' => route('receptionist.notifications.store'),
+        return Inertia::render('receptionist/notifications/index', [
+            'title' => 'Notifications',
+            'records' => Notification::query()
+                ->with('receiver:id,name')
+                ->latest()
+                ->get(),
+            'actions' => [
+                'store' => route('receptionist.notifications.store'),
+            ],
         ]);
     }
 
@@ -38,7 +46,7 @@ class NotificationController extends Controller
             ->findOrFail($data['receiver_id']);
 
         $notification = Notification::query()->create([
-            'sender_id' => auth()->id(),
+            'sender_id' => $request->user()->id,
             'receiver_id' => $receiver->id,
             'title' => $data['title'],
             'message' => $data['message'],

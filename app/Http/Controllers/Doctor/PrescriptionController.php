@@ -12,6 +12,49 @@ use Inertia\Inertia;
 class PrescriptionController extends Controller
 {
     /**
+     * Show list of prescriptions with search.
+     */
+    public function index(Request $request)
+    {
+        $query = $request->query('search');
+
+        $prescriptions = Prescription::query()
+            ->with(['patient.user', 'items'])
+            ->where(function ($q) use ($query) {
+                if ($query) {
+                    $q->whereHas('patient', function ($pq) use ($query) {
+                        $pq->where('patient_code', 'like', "%{$query}%")
+                           ->orWhereHas('user', function ($uq) use ($query) {
+                            $uq->where('name', 'like', "%{$query}%");
+                           });
+                    });
+                }
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(15)
+            ->appends(['search' => $query]);
+
+        return Inertia::render('doctor/prescriptions/index', [
+            'prescriptions' => $prescriptions,
+            'filters' => [
+                'search' => $query,
+            ]
+        ]);
+    }
+
+    /**
+     * Show a specific prescription.
+     */
+    public function show(Prescription $prescription)
+    {
+        $prescription->load(['patient.user', 'items']);
+
+        return Inertia::render('doctor/prescriptions/show', [
+            'prescription' => $prescription,
+        ]);
+    }
+
+    /**
      * Show a simple prescription form.
      */
     public function create()
@@ -53,7 +96,7 @@ class PrescriptionController extends Controller
         ]);
 
         // Find the doctor profile linked to the logged-in user.
-        $doctorId = DoctorProfile::query()->where('user_id', auth()->id())->value('id');
+        $doctorId = DoctorProfile::query()->where('user_id', $request->user()->id)->value('id');
 
         $prescription = Prescription::query()->create([
             'patient_id' => $data['patient_id'],

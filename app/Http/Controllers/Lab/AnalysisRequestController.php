@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Lab;
 
 use App\Http\Controllers\Controller;
 use App\Models\AnalysisRequest;
+use Inertia\Inertia;
 
 class AnalysisRequestController extends Controller
 {
@@ -26,7 +27,10 @@ class AnalysisRequestController extends Controller
                 'status' => $request->status,
             ]);
 
-        return $this->hospitalPage('lab/analysis-requests/index', 'Analysis Requests', $requests);
+        return Inertia::render('lab/analysis-requests/index', [
+            'title' => 'Analysis Requests',
+            'records' => $requests,
+        ]);
     }
 
     /**
@@ -37,16 +41,20 @@ class AnalysisRequestController extends Controller
         // Load the two related users needed to show this request clearly to the lab team.
         $analysisRequest->load(['patient.user:id,name', 'doctor.user:id,name']);
 
-        return $this->hospitalPage('lab/analysis-requests/show', 'Analysis Request Details', [[
-            'id' => $analysisRequest->id,
-            'patient' => $analysisRequest->patient?->user?->name,
-            'doctor' => $analysisRequest->doctor?->user?->name,
-            'analysis_type' => $analysisRequest->analysis_type,
-            'description' => $analysisRequest->description,
-            'status' => $analysisRequest->status,
-        ]], [
-            'result' => route('lab.analysis-results.store', $analysisRequest),
-            'progress' => route('lab.analysis-requests.progress', $analysisRequest),
+return Inertia::render('lab/analysis-requests/show', [
+            'title' => 'Analysis Request Details',
+            'records' => [[
+                'id' => $analysisRequest->id,
+                'patient' => $analysisRequest->patient?->user?->name,
+                'doctor' => $analysisRequest->doctor?->user?->name,
+                'analysis_type' => $analysisRequest->analysis_type,
+                'description' => $analysisRequest->description,
+                'status' => $analysisRequest->status,
+            ]],
+            'actions' => [
+                'result' => route('lab.analysis-results.create', $analysisRequest),
+                'progress' => route('lab.analysis-requests.progress', $analysisRequest),
+            ],
         ]);
     }
 
@@ -61,6 +69,6 @@ class AnalysisRequestController extends Controller
             'started_at' => now(),
         ]);
 
-        return response()->noContent();
+        return response()->redirectTo(route('lab.analysis-requests.show', $analysisRequest));
     }
 }

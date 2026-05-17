@@ -41,15 +41,15 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::get('staff/create', [StaffController::class, 'create'])->name('staff.create');
         Route::post('staff', [StaffController::class, 'store'])->name('staff.store');
         Route::get('staff/{staff}/edit', [StaffController::class, 'edit'])->name('staff.edit');
-        Route::patch('staff/{staff}', [StaffController::class, 'update'])->name('staff.update');
+        Route::post('staff/{staff}', [StaffController::class, 'update'])->name('staff.update');
+        Route::post('staff/{staff}/toggle-status', [StaffController::class, 'toggleStatus'])->name('staff.toggle-status');
+        Route::post('staff/{staff}/delete', [StaffController::class, 'destroy'])->name('staff.destroy');
         Route::get('patients', [AdminPatientController::class, 'index'])->name('patients.index');
         Route::get('appointments', [ReportController::class, 'appointments'])->name('appointments.index');
         Route::get('analyses', [ReportController::class, 'analyses'])->name('analyses.index');
         Route::get('billing', [ReportController::class, 'billing'])->name('billing.index');
         Route::get('payments', [ReportController::class, 'payments'])->name('payments.index');
         Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
-        Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
-        Route::post('settings', [SettingController::class, 'store'])->name('settings.store');
     });
 
     Route::middleware('role:receptionist')->prefix('receptionist')->name('receptionist.')->group(function (): void {
@@ -68,13 +68,21 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::get('patients/search', [PatientFileController::class, 'search'])->name('patients.search');
         Route::get('patients/{patient}', [PatientFileController::class, 'show'])->name('patients.show');
         Route::post('medical-notes', [MedicalNoteController::class, 'store'])->name('medical-notes.store');
+        Route::get('prescriptions', [PrescriptionController::class, 'index'])->name('prescriptions.index');
         Route::get('prescriptions/create', [PrescriptionController::class, 'create'])->name('prescriptions.create');
+        Route::get('prescriptions/{prescription}', [PrescriptionController::class, 'show'])->name('prescriptions.show');
         Route::post('prescriptions', [PrescriptionController::class, 'store'])->name('prescriptions.store');
+        Route::get('analysis-requests', [DoctorAnalysisRequestController::class, 'index'])->name('analysis-requests.index');
         Route::get('analysis-requests/create', [DoctorAnalysisRequestController::class, 'create'])->name('analysis-requests.create');
+        Route::get('analysis-requests/{analysisRequest}', [DoctorAnalysisRequestController::class, 'show'])->name('analysis-requests.show');
         Route::post('analysis-requests', [DoctorAnalysisRequestController::class, 'store'])->name('analysis-requests.store');
+        Route::get('appointments', [DoctorAppointmentController::class, 'index'])->name('appointments.index');
         Route::get('appointments/create', [DoctorAppointmentController::class, 'create'])->name('appointments.create');
+        Route::get('appointments/{appointment}', [DoctorAppointmentController::class, 'show'])->name('appointments.show');
         Route::post('appointments', [DoctorAppointmentController::class, 'store'])->name('appointments.store');
+        Route::get('billing', [DoctorBillingController::class, 'index'])->name('billing.index');
         Route::get('billing/create', [DoctorBillingController::class, 'create'])->name('billing.create');
+        Route::get('billing/{billing}', [DoctorBillingController::class, 'show'])->name('billing.show');
         Route::post('billing', [DoctorBillingController::class, 'store'])->name('billing.store');
     });
 
@@ -85,14 +93,18 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::post('analysis-requests/{analysisRequest}/progress', [LabAnalysisRequestController::class, 'progress'])->name('analysis-requests.progress');
         Route::get('analysis-requests/{analysisRequest}/results/create', [AnalysisResultController::class, 'create'])->name('analysis-results.create');
         Route::post('analysis-requests/{analysisRequest}/results', [AnalysisResultController::class, 'store'])->name('analysis-results.store');
+        Route::get('analysis-results', [AnalysisResultController::class, 'index'])->name('analysis-results.index');
+        Route::get('analysis-results/{analysisResult}', [AnalysisResultController::class, 'show'])->name('analysis-results.show');
     });
 
     Route::middleware('role:accountant')->prefix('accountant')->name('accountant.')->group(function (): void {
         Route::get('dashboard', DashboardController::class)->name('dashboard');
         Route::get('patients/search', [AccountantBillingController::class, 'search'])->name('patients.search');
+        Route::get('billing', [AccountantBillingController::class, 'index'])->name('billing.index');
         Route::get('billing/{billing}', [AccountantBillingController::class, 'show'])->name('billing.show');
         Route::get('billing/{billing}/payments/create', [AccountantPaymentController::class, 'create'])->name('payments.create');
         Route::post('billing/{billing}/payments', [AccountantPaymentController::class, 'store'])->name('payments.store');
+        Route::get('payments', [AccountantPaymentController::class, 'index'])->name('payments.index');
         Route::get('receipts/{payment}', [AccountantReceiptController::class, 'show'])->name('receipts.show');
     });
 

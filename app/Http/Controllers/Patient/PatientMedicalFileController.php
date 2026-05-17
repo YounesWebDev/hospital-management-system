@@ -22,12 +22,15 @@ class PatientMedicalFileController extends Controller
         $patient = $this->patient();
         $patient?->load('user:id,name,email,username,phone');
 
-        return $this->hospitalPage('patient/profile', 'My Profile', [[
-            'code' => $patient?->patient_code,
-            'name' => $patient?->user?->name,
-            'email' => $patient?->user?->email,
-            'phone' => $patient?->user?->phone,
-        ]]);
+        return Inertia::render('patient/profile', [
+            'title' => 'My Profile',
+            'records' => [[
+                'code' => $patient?->patient_code,
+                'name' => $patient?->user?->name,
+                'email' => $patient?->user?->email,
+                'phone' => $patient?->user?->phone,
+            ]],
+        ]);
     }
 
     /**
@@ -36,10 +39,24 @@ class PatientMedicalFileController extends Controller
     public function appointments()
     {
         // Return the current patient's appointments in newest-first order.
-        return $this->hospitalPage('patient/appointments/index', 'My Appointments', Appointment::query()
+        $appointments = Appointment::query()
             ->where('patient_id', $this->patient()?->id)
+            ->with(['patient.user:id,name', 'doctor.user:id,name'])
             ->latest()
-            ->get());
+            ->get()
+            ->map(fn (Appointment $appointment): array => [
+                'id' => $appointment->id,
+                'patient' => $appointment->patient?->user?->name,
+                'doctor' => $appointment->doctor?->user?->name,
+                'date' => $appointment->appointment_date?->toDateString(),
+                'time' => $appointment->appointment_time,
+                'status' => $appointment->status,
+            ]);
+
+        return Inertia::render('patient/appointments/index', [
+            'title' => 'My Appointments',
+            'records' => $appointments,
+        ]);
     }
 
     /**
@@ -68,7 +85,23 @@ class PatientMedicalFileController extends Controller
     public function analyses()
     {
         // Return only analysis requests linked to the current patient's profile.
-        return $this->hospitalPage('patient/analyses/index', 'My Analyses', $this->patient()?->analysisRequests()->latest()->get() ?? []);
+        $analyses = $this->patient()?->analysisRequests()
+            ->with(['doctor.user:id,name'])
+            ->latest()
+            ->get()
+            ->map(fn ($analysis) => [
+                'id' => $analysis->id,
+                'doctor' => $analysis->doctor?->user?->name,
+                'type' => $analysis->analysis_type,
+                'status' => $analysis->status,
+                'created_at' => $analysis->created_at?->toDateString(),
+                'result' => $analysis->result,
+            ]) ?? collect();
+
+        return Inertia::render('patient/analyses/index', [
+            'title' => 'My Analyses',
+            'records' => $analyses,
+        ]);
     }
 
     /**
@@ -77,10 +110,22 @@ class PatientMedicalFileController extends Controller
     public function billing()
     {
         // Return the billing records linked to the current patient's profile.
-        return $this->hospitalPage('patient/billing/index', 'My Billing', BillingRecord::query()
+        $records = BillingRecord::query()
             ->where('patient_id', $this->patient()?->id)
             ->latest()
-            ->get());
+            ->get()
+            ->map(fn (BillingRecord $record) => [
+                'id' => $record->id,
+                'amount' => $record->total_amount,
+                'status' => $record->status,
+                'created_at' => $record->created_at?->toDateString(),
+                'description' => $record->description,
+            ]);
+
+        return Inertia::render('patient/billing/index', [
+            'title' => 'My Billing',
+            'records' => $records,
+        ]);
     }
 
     /**
@@ -89,10 +134,23 @@ class PatientMedicalFileController extends Controller
     public function payments()
     {
         // Return the payment history linked to the current patient's profile.
-        return $this->hospitalPage('patient/payments/index', 'My Payments', Payment::query()
+        $payments = Payment::query()
             ->where('patient_id', $this->patient()?->id)
+            ->with('billingRecord')
             ->latest()
-            ->get());
+            ->get()
+            ->map(fn (Payment $payment) => [
+                'id' => $payment->id,
+                'amount' => $payment->amount_paid,
+                'date' => $payment->paid_at?->toDateString(),
+                'method' => $payment->payment_method,
+                'status' => $payment->billingRecord?->status ?? 'N/A',
+            ]);
+
+        return Inertia::render('patient/payments/index', [
+            'title' => 'My Payments',
+            'records' => $payments,
+        ]);
     }
 
     /**
@@ -101,12 +159,27 @@ class PatientMedicalFileController extends Controller
     public function notifications()
     {
         // Return notifications where the current user is the receiver.
-        return $this->hospitalPage('patient/notifications/index', 'My Notifications', Notification::query()
+        $records = Notification::query()
             ->where('receiver_id', auth()->id())
+            ->with('sender.user:id,name')
             ->latest()
-            ->get(), [
-                'readBase' => url('/patient/notifications'),
+            ->get()
+            ->map(fn (Notification $n) => [
+                'id' => $n->id,
+                'title' => $n->title,
+                'message' => $n->message,
+                'sender' => $n->sender?->user?->name ?? 'System',
+                'created_at' => $n->created_at?->toDateString(),
+                'is_read' => $n->is_read,
             ]);
+
+        return Inertia::render('patient/notifications/index', [
+            'title' => 'My Notifications',
+            'records' => $records,
+            'actions' => [
+                'markAsRead' => route('patient.notifications.read'),
+            ],
+        ]);
     }
 
     /**

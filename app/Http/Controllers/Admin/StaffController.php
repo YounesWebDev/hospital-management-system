@@ -9,35 +9,61 @@ use App\Models\LabTechnicianProfile;
 use App\Models\StaffProfile;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class StaffController extends Controller
 {
     /**
      * Show all staff accounts.
      */
-    public function index()
+    public function index(): Response
     {
-        // Load only the fields the staff list needs instead of returning full user records.
         $staff = User::query()
-            ->whereIn('role', ['admin', 'receptionist', 'doctor', 'lab_technician', 'accountant'])
-            ->latest()
-            ->get(['id', 'name', 'email', 'username', 'role', 'status']);
+            ->whereIn('role', [
+                'admin',
+                'receptionist',
+                'doctor',
+                'lab_technician',
+                'accountant'
+            ], 'and', false)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        return $this->hospitalPage('admin/staff/index', 'Staff Accounts', $staff, [
-            'create' => route('admin.staff.create'),
+        $staff = $staff->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'username' => $user->username,
+                'role' => $user->role,
+                'status' => $user->status,
+            ];
+        });
+
+        return Inertia::render('admin/staff/index', [
+            'title' => 'Staff Accounts',
+            'records' => $staff,
+            'actions' => [
+                'create' => route('admin.staff.create'),
+            ],
         ]);
     }
 
     /**
      * Show the staff creation page.
      */
-    public function create()
+    public function create(): Response
     {
-        return $this->hospitalPage('admin/staff/create', 'Create Staff Account', [], [
-            'store' => route('admin.staff.store'),
+        return Inertia::render('admin/staff/create', [
+            'title' => 'Create Staff Account',
+            'actions' => [
+                'store' => route('admin.staff.store'),
+            ],
         ]);
     }
 
@@ -46,7 +72,6 @@ class StaffController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate the account and profile data submitted by the admin form.
         $data = $request->validate([
             'first_name' => ['required', 'string', 'max:191'],
             'last_name' => ['required', 'string', 'max:191'],
@@ -61,12 +86,12 @@ class StaffController extends Controller
             'department' => ['nullable', 'string', 'max:191'],
         ]);
 
-        $temporaryPassword = Str::password(10);
+        $temporaryPassword = Str::random(10);
 
         $user = DB::transaction(function () use ($data, $temporaryPassword): User {
-            // Create the login account first because the profile records need its user id.
+
             $user = User::query()->create([
-                'name' => $data['first_name'].' '.$data['last_name'],
+                'name' => $data['first_name'] . ' ' . $data['last_name'],
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
                 'email' => Str::lower($data['email']),
@@ -77,10 +102,9 @@ class StaffController extends Controller
                 'status' => 'active',
                 'preferred_language' => 'en',
                 'must_change_password' => true,
-                'created_by' => auth()->id(),
+                'created_by' => Auth::id(),
             ]);
 
-            // Every staff account gets a shared staff profile with payroll and address fields.
             StaffProfile::query()->create([
                 'user_id' => $user->id,
                 'salary' => $data['salary'] ?? 0,
@@ -89,7 +113,7 @@ class StaffController extends Controller
             ]);
 
             if ($data['role'] === 'doctor') {
-                // Only doctors get a doctor profile with a specialization.
+
                 DoctorProfile::query()->create([
                     'user_id' => $user->id,
                     'specialization' => $data['specialization'] ?? 'General Medicine',
@@ -97,40 +121,59 @@ class StaffController extends Controller
             }
 
             if ($data['role'] === 'lab_technician') {
-                // Only lab technicians get a lab profile with a department.
+
                 LabTechnicianProfile::query()->create([
                     'user_id' => $user->id,
                     'department' => $data['department'] ?? 'Laboratory',
                 ]);
             }
 
-            // Save a record showing that credentials were generated for this account.
             CredentialExport::query()->create([
                 'user_id' => $user->id,
-                'generated_by' => auth()->id(),
+                'generated_by' => Auth::id(),
                 'export_type' => 'staff',
                 'exported_at' => now(),
             ]);
 
-            $this->audit('created_staff', 'users', $user->id, "Created {$user->role} account");
+            $this->audit(
+                'created_staff',
+                'users',
+                $user->id,
+                "Created {$user->role} account"
+            );
 
             return $user;
         });
 
-        return response($this->credentialText($user, $temporaryPassword), 200, [
-            'Content-Type' => 'text/plain',
-            'Content-Disposition' => 'attachment; filename="staff-credentials.txt"',
-        ]);
+        return response(
+            $this->credentialText($user, $temporaryPassword),
+            200,
+            [
+                'Content-Type' => 'text/plain',
+                'Content-Disposition' => 'attachment; filename="staff-credentials.txt"',
+            ]
+        );
     }
 
     /**
      * Show the staff edit page.
      */
-    public function edit(User $staff)
+    public function edit(User $staff): Response
     {
-        // Send a small subset of the user fields to the edit page.
-        return $this->hospitalPage('admin/staff/edit', 'Edit Staff Account', [$staff->only('id', 'name', 'email', 'username', 'role', 'status')], [
-            'update' => route('admin.staff.update', $staff),
+        return Inertia::render('admin/staff/edit', [
+            'title' => 'Edit Staff Account',
+            'record' => [
+                'id' => $staff->id,
+                'name' => $staff->name,
+                'email' => $staff->email,
+                'username' => $staff->username,
+                'role' => $staff->role,
+                'status' => $staff->status,
+                'phone' => $staff->phone,
+            ],
+            'actions' => [
+                'update' => route('admin.staff.update', $staff),
+            ],
         ]);
     }
 
@@ -139,15 +182,45 @@ class StaffController extends Controller
      */
     public function update(Request $request, User $staff)
     {
-        // Only allow the small set of fields that the edit screen is responsible for.
         $data = $request->validate([
             'phone' => ['nullable', 'string', 'max:191'],
             'status' => ['required', 'in:active,inactive'],
         ]);
 
-        $staff->update($data);
+        $staff->fill($data);
+        $staff->save();
 
-        return response()->noContent();
+        return response()->json([
+            'message' => 'Staff account updated successfully.',
+        ]);
+    }
+
+    /**
+     * Toggle the status of a staff account.
+     */
+    public function toggleStatus(Request $request, User $staff)
+    {
+        $staff->status = $staff->status === 'active'
+            ? 'inactive'
+            : 'active';
+
+        $staff->save();
+
+        return response()->json([
+            'status' => $staff->status,
+        ]);
+    }
+
+    /**
+     * Delete a staff account.
+     */
+    public function destroy(Request $request, User $staff)
+    {
+        User::destroy($staff->id);
+
+        return response()->json([
+            'message' => 'Staff account deleted successfully.',
+        ]);
     }
 
     /**
@@ -156,11 +229,11 @@ class StaffController extends Controller
     private function credentialText(User $user, string $temporaryPassword): string
     {
         return "Clinic System Credentials\n\n"
-            ."Full Name: {$user->name}\n"
-            ."Role: {$user->role}\n"
-            ."Email: {$user->email}\n"
-            ."Username: {$user->username}\n"
-            ."Temporary Password: {$temporaryPassword}\n\n"
-            .'Please change your password after first login.';
+            . "Full Name: {$user->name}\n"
+            . "Role: {$user->role}\n"
+            . "Email: {$user->email}\n"
+            . "Username: {$user->username}\n"
+            . "Temporary Password: {$temporaryPassword}\n\n"
+            . "Please change your password after first login.";
     }
 }

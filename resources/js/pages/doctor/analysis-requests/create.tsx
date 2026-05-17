@@ -1,10 +1,13 @@
-import { createHospitalFormPage } from '@/pages/hospital/page-factory';
+import FormPage from '@/pages/hospital/form-page';
+import { store as storeDoctorAnalysisRequests } from '@/routes/doctor/analysis-requests';
 
-export default createHospitalFormPage({
-    title: 'Request Analysis',
-    fields: [
-        { name: 'patient_id', label: 'Patient ID', type: 'number', required: true },
-        { name: 'analysis_type', label: 'Analysis type', required: true },
-        { name: 'description', label: 'Description', type: 'textarea' },
-    ],
-});
+export default function RequestAnalysisPage({ actions, fields }: any) {
+  return (
+    <FormPage
+      title="Request Analysis"
+      action={actions.store}
+      submission="native"
+      fields={fields}
+    />
+  );
+}

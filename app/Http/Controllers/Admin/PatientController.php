@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PatientProfile;
+use Inertia\Inertia;
 
 class PatientController extends Controller
 {
@@ -25,6 +26,9 @@ class PatientController extends Controller
                 'status' => $patient->user?->status,
             ]);
 
-        return $this->hospitalPage('admin/patients/index', 'Patients', $patients);
+        return Inertia::render('admin/patients/index', [
+            'title' => 'Patients',
+            'records' => $patients,
+        ]);
     }
 }

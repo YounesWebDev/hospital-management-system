@@ -1,0 +1,102 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam Monochrome true
+skinparam shadowing false
+
+package "User Management" {
+    class User {
+        + id : int
+        + name : string
+        + email : string
+        + role : string
+        + status : string
+    }
+    class PatientProfile {
+        + patient_code : string
+        + user_id : int
+        + gender : string
+        + birth_date : date
+    }
+    class DoctorProfile {
+        + user_id : int
+        + specialization : string
+    }
+    class StaffProfile {
+        + user_id : int
+        + position : string
+    }
+}
+
+package "Medical Records" {
+    class Appointment {
+        + id : int
+        + patient_id : int
+        + doctor_id : int
+        + appointment_date : date
+        + appointment_time : time
+        + status : string
+    }
+    class Prescription {
+        + id : int
+        + patient_id : int
+        + doctor_id : int
+        + diagnosis : string
+        + instructions : string
+    }
+    class AnalysisRequest {
+        + id : int
+        + patient_id : int
+        + doctor_id : int
+        + analysis_type : string
+        + status : string
+    }
+}
+
+package "Financials" {
+    class BillingRecord {
+        + id : int
+        + patient_id : int
+        + total_amount : decimal
+        + status : string
+    }
+    class Payment {
+        + id : int
+        + billing_record_id : int
+        + patient_id : int
+        + amount_paid : decimal
+        + payment_method : string
+    }
+}
+
+package "Communication" {
+    class Notification {
+        + id : int
+        + sender_id : int
+        + receiver_id : int
+        + title : string
+        + message : string
+    }
+}
+
+' Relationships
+User "1" -- "0..1" PatientProfile
+User "1" -- "0..1" DoctorProfile
+User "1" -- "0..1" StaffProfile
+
+PatientProfile "1" -- "0..*" Appointment
+DoctorProfile "1" -- "0..*" Appointment
+
+PatientProfile "1" -- "0..*" Prescription
+DoctorProfile "1" -- "0..*" Prescription
+
+PatientProfile "1" -- "0..*" AnalysisRequest
+DoctorProfile "1" -- "0..*" AnalysisRequest
+
+PatientProfile "1" -- "0..*" BillingRecord
+BillingRecord "1" -- "0..*" Payment
+PatientProfile "1" -- "0..*" Payment
+
+User "1" -- "0..*" Notification : sends
+User "1" -- "0..*" Notification : receives
+@enduml

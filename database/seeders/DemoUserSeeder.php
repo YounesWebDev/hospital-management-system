@@ -2,15 +2,19 @@
 
 namespace Database\Seeders;
 
+use App\Models\AnalysisRequest;
+use App\Models\Appointment;
+use App\Models\BillingItem;
+use App\Models\BillingRecord;
 use App\Models\DoctorProfile;
 use App\Models\LabTechnicianProfile;
+use App\Models\Payment;
 use App\Models\PatientProfile;
+use App\Models\Prescription;
+use App\Models\PrescriptionItem;
 use App\Models\StaffProfile;
-use App\Models\SystemSetting;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class DemoUserSeeder extends Seeder
@@ -87,7 +91,7 @@ class DemoUserSeeder extends Seeder
             'address' => 'Doctor office',
         ]);
 
-        DoctorProfile::query()->create([
+        $doctorProfile = DoctorProfile::query()->create([
             'user_id' => $doctor->id,
             'specialization' => 'General Medicine',
         ]);
@@ -134,7 +138,7 @@ class DemoUserSeeder extends Seeder
             'created_by' => $admin->id,
         ]);
 
-        StaffProfile::query()->create([
+        $accountantProfile = StaffProfile::query()->create([
             'user_id' => $accountant->id,
             'salary' => 80000,
             'hire_date' => now()->subYear()->toDateString(),
@@ -156,7 +160,7 @@ class DemoUserSeeder extends Seeder
             'created_by' => $receptionist->id,
         ]);
 
-        PatientProfile::query()->create([
+        $patientProfile = PatientProfile::query()->create([
             'user_id' => $patient->id,
             'patient_code' => 'P-00001',
             'gender' => 'male',
@@ -166,11 +170,137 @@ class DemoUserSeeder extends Seeder
             'registered_by' => $receptionist->id,
         ]);
 
-        // Basic settings used by later screens.
-        DB::table('system_settings')->insert([
-            ['setting_key' => 'clinic_name', 'setting_value' => 'HospitalCare', 'created_at' => now(), 'updated_at' => now()],
-            ['setting_key' => 'currency', 'setting_value' => 'DZD', 'created_at' => now(), 'updated_at' => now()],
-            ['setting_key' => 'default_language', 'setting_value' => 'en', 'created_at' => now(), 'updated_at' => now()],
+        // Additional test patient
+        $patient2 = User::query()->create([
+            'name' => 'John Doe',
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'email' => 'john.doe@example.com',
+            'username' => 'johndoe',
+            'password' => $password,
+            'role' => 'patient',
+            'phone' => '0555000007',
+            'status' => 'active',
+            'preferred_language' => 'en',
+            'created_by' => $receptionist->id,
         ]);
+
+        $patientProfile2 = PatientProfile::query()->create([
+            'user_id' => $patient2->id,
+            'patient_code' => 'P-00002',
+            'gender' => 'male',
+            'birth_date' => now()->subYears(45)->toDateString(),
+            'address' => 'Patient 2 address',
+            'emergency_contact' => '0555888888',
+            'registered_by' => $receptionist->id,
+        ]);
+
+        // Doctor's Appointments
+        $appts = [
+            [
+                'patient_id' => $patientProfile->id,
+                'doctor_id' => $doctorProfile->id,
+                'type' => 'Consultation',
+                'appointment_date' => now()->subDays(1)->toDateString(),
+                'appointment_time' => '10:00',
+                'status' => 'completed',
+                'notes' => 'Initial checkup',
+            ],
+            [
+                'patient_id' => $patientProfile2->id,
+                'doctor_id' => $doctorProfile->id,
+                'type' => 'Follow-up',
+                'appointment_date' => now()->addDays(2)->toDateString(),
+                'appointment_time' => '14:30',
+                'status' => 'scheduled',
+                'notes' => 'Review test results',
+            ],
+            [
+                'patient_id' => $patientProfile->id,
+                'doctor_id' => $doctorProfile->id,
+                'type' => 'Routine',
+                'appointment_date' => now()->subDays(5)->toDateString(),
+                'appointment_time' => '09:00',
+                'status' => 'cancelled',
+                'notes' => 'Patient cancelled',
+            ],
+        ];
+
+        foreach ($appts as $aptData) {
+            Appointment::query()->create($aptData);
+        }
+
+        // For the completed appointment, create a prescription and analysis request
+        $completedApt = Appointment::where('status', 'completed')->first();
+        if ($completedApt) {
+            $prescription = Prescription::query()->create([
+                'patient_id' => $completedApt->patient_id,
+                'doctor_id' => $doctorProfile->id,
+                'diagnosis' => 'Common Cold',
+                'instructions' => 'Take medicines as prescribed and rest.',
+            ]);
+
+            PrescriptionItem::query()->create([
+                'prescription_id' => $prescription->id,
+                'medicine_name' => 'Paracetamol',
+                'dosage' => '500mg',
+                'duration' => '5 days',
+                'instructions' => 'Twice a day after meals',
+            ]);
+
+            PrescriptionItem::query()->create([
+                'prescription_id' => $prescription->id,
+                'medicine_name' => 'Cough Syrup',
+                'dosage' => '10ml',
+                'duration' => '3 days',
+                'instructions' => 'Once a day before bed',
+            ]);
+
+            AnalysisRequest::query()->create([
+                'patient_id' => $completedApt->patient_id,
+                'doctor_id' => $doctorProfile->id,
+                'analysis_type' => 'Blood Test',
+                'description' => 'Check for infection markers',
+                'status' => 'completed',
+                'requested_at' => now()->subDay(),
+                'started_at' => now()->subDay()->addHours(2),
+                'completed_at' => now()->subDay()->addHours(5),
+            ]);
+
+            $bill = BillingRecord::query()->create([
+                'patient_id' => $completedApt->patient_id,
+                'doctor_id' => $doctorProfile->id,
+                'total_amount' => 150.00,
+                'paid_amount' => 100.00,
+                'remaining_amount' => 50.00,
+                'status' => 'partially_paid',
+            ]);
+
+            BillingItem::query()->create([
+                'billing_record_id' => $bill->id,
+                'item_type' => 'Consultation',
+                'description' => 'General Consultation Fee',
+                'amount' => 100.00,
+                'added_by' => $doctor->id,
+            ]);
+
+            BillingItem::query()->create([
+                'billing_record_id' => $bill->id,
+                'item_type' => 'Service',
+                'description' => 'Administrative Fee',
+                'amount' => 50.00,
+                'added_by' => $doctor->id,
+            ]);
+
+            Payment::query()->create([
+                'billing_record_id' => $bill->id,
+                'patient_id' => $completedApt->patient_id,
+                'accountant_id' => $accountantProfile->id,
+                'amount_paid' => 100.00,
+                'payment_method' => 'cash',
+                'receipt_number' => 'REC-001',
+                'paid_at' => now()->subDay(),
+            ]);
+        }
     }
 }

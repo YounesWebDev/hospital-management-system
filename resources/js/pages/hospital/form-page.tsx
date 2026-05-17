@@ -37,6 +37,7 @@ export type FormField = {
     type?: 'text' | 'email' | 'number' | 'date' | 'time' | 'file' | 'textarea' | 'select';
     options?: FieldOption[];
     required?: boolean;
+    accept?: string;
     visibleWhen?: {
         field: string;
         equals: string | string[];
@@ -225,7 +226,7 @@ export default function FormPage({
                                     }));
                                     setActiveDateField(null);
                                 }}
-                                className="rounded-b-lg border-t"
+                                captionLayout="dropdown" className="rounded-b-lg border-t"
                             />
                         </DialogContent>
                     </Dialog>
@@ -239,6 +240,7 @@ export default function FormPage({
                 name={field.name}
                 type={field.type ?? 'text'}
                 required={field.required}
+                accept={field.type === 'file' ? field.accept : undefined}
                 className="h-11 rounded-lg shadow-xs"
             />
         );
@@ -306,7 +308,14 @@ export default function FormPage({
                                 <form
                                     action={action}
                                     method="post"
-                                    onSubmit={() => setNativeSubmitting(true)}
+                                    onSubmit={() => {
+                                        setNativeSubmitting(true);
+                                        // Reset form fields after a brief delay to allow download to start
+                                        setTimeout(() => {
+                                            setFieldValues({});
+                                            setNativeSubmitting(false);
+                                        }, 500);
+                                    }}
                                     className="grid gap-5 md:grid-cols-2 xl:grid-cols-3"
                                 >
                                     <input type="hidden" name="_token" value={csrfToken} />

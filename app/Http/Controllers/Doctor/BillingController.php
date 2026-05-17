@@ -12,6 +12,47 @@ use Inertia\Inertia;
 class BillingController extends Controller
 {
     /**
+     * List billing records for a doctor.
+     */
+    public function index(Request $request)
+    {
+        $search = $request->string('search');
+        $doctorId = DoctorProfile::query()->where('user_id', $request->user()->id)->value('id');
+
+        $billingRecords = BillingRecord::query()
+            ->with(['patient.user'])
+            ->where('doctor_id', $doctorId)
+            ->when($search, function ($query, $search) {
+                $query->whereHas('patient', function ($q) use ($search) {
+                    $q->where('patient_code', 'like', "%{$search}%")
+                      ->orWhereHas('user', fn($u) => $u->where('name', 'like', "%{$search}%"));
+                });
+            })
+            ->latest()
+            ->paginate(12);
+
+        return Inertia::render('doctor/billing/index', [
+            'billing' => $billingRecords,
+            'filters' => [
+                'search' => $search,
+            ],
+            'actions' => [
+                'create' => route('doctor.billing.create'),
+            ],
+        ]);
+    }
+
+    /**
+     * Show specific billing record.
+     */
+    public function show(BillingRecord $billing)
+    {
+        return Inertia::render('doctor/billing/show', [
+            'billing' => $billing->load(['patient.user', 'items']),
+        ]);
+    }
+
+    /**
      * Show billing item creation form.
      */
     public function create()
@@ -47,6 +88,7 @@ class BillingController extends Controller
         ]);
     }
 
+
     /**
      * Add a fee and recalculate the bill.
      */
@@ -60,7 +102,7 @@ class BillingController extends Controller
             'amount' => ['required', 'numeric', 'min:0'],
         ]);
 
-        $doctorId = DoctorProfile::query()->where('user_id', auth()->id())->value('id');
+        $doctorId = DoctorProfile::query()->where('user_id', $request->user()->id)->value('id');
 
         // Reuse the patient's open unpaid bill, or create one if this is the first item.
         $billing = BillingRecord::query()->firstOrCreate(
@@ -73,7 +115,7 @@ class BillingController extends Controller
             'item_type' => $data['item_type'],
             'description' => $data['description'],
             'amount' => $data['amount'],
-            'added_by' => auth()->id(),
+            'added_by' => $request->user()->id,
         ]);
 
         // Recalculate totals after inserting the new item.

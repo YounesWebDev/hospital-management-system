@@ -1,0 +1,60 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Patient" as P
+actor "Doctor" as D
+actor "Receptionist" as R
+actor "Lab Technician" as LT
+actor "Accountant" as A
+actor "Admin" as ADM
+
+package "Hospital Management System" {
+    usecase "Manage Profile" as UC1
+    usecase "View Appointments" as UC2
+    usecase "View Medical Records" as UC3
+    usecase "Pay Bills" as UC4
+
+    usecase "Manage Appointments" as UC5
+    usecase "Create Prescriptions" as UC6
+    usecase "Order Analysis" as UC7
+
+    usecase "Register Patients" as UC8
+    usecase "Schedule Appointments" as UC9
+
+    usecase "Process Analysis" as UC10
+    usecase "Upload Results" as UC11
+
+    usecase "Manage Billing" as UC12
+    usecase "Record Payments" as UC13
+    usecase "Issue Receipts" as UC14
+
+    usecase "Manage Staff" as UC15
+    usecase "Generate Reports" as UC16
+}
+
+P --> UC1
+P --> UC2
+P --> UC3
+P --> UC4
+
+D --> UC2
+D --> UC5
+D --> UC6
+D --> UC7
+
+R --> UC8
+R --> UC9
+R --> UC2
+
+LT --> UC10
+LT --> UC11
+
+A --> UC12
+A --> UC13
+A --> UC14
+
+ADM --> UC15
+ADM --> UC16
+ADM --> UC12
+@enduml

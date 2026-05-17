@@ -1,13 +1,13 @@
-import { createHospitalFormPage } from '@/pages/hospital/page-factory';
+import FormPage from '@/pages/hospital/form-page';
+import { store as storeDoctorPrescriptions } from '@/routes/doctor/prescriptions';
 
-export default createHospitalFormPage({
-    title: 'Create Prescription',
-    fields: [
-        { name: 'patient_id', label: 'Patient ID', type: 'number', required: true },
-        { name: 'diagnosis', label: 'Diagnosis', type: 'textarea' },
-        { name: 'medicine_name', label: 'Medicine name', required: true },
-        { name: 'dosage', label: 'Dosage' },
-        { name: 'duration', label: 'Duration' },
-        { name: 'instructions', label: 'Instructions', type: 'textarea' },
-    ],
-});
+export default function CreatePrescriptionPage({ actions, fields }: any) {
+  return (
+    <FormPage
+      title="Create Prescription"
+      action={actions.store}
+      submission="native"
+      fields={fields}
+    />
+  );
+}

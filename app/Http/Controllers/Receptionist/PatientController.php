@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class PatientController extends Controller
 {
@@ -32,8 +33,12 @@ class PatientController extends Controller
                 'status' => $patient->user?->status,
             ]);
 
-        return $this->hospitalPage('receptionist/patients/index', 'Patient Registration', $patients, [
-            'create' => route('receptionist.patients.create'),
+        return Inertia::render('receptionist/patients/index', [
+            'title' => 'Patient Registration',
+            'records' => $patients,
+            'actions' => [
+                'create' => route('receptionist.patients.create'),
+            ],
         ]);
     }
 
@@ -42,8 +47,12 @@ class PatientController extends Controller
      */
     public function create()
     {
-        return $this->hospitalPage('receptionist/patients/create', 'Register Patient', [], [
-            'store' => route('receptionist.patients.store'),
+        return Inertia::render('receptionist/patients/create', [
+            'title' => 'Register Patient',
+            'records' => [],
+            'actions' => [
+                'store' => route('receptionist.patients.store'),
+            ],
         ]);
     }
 
@@ -123,13 +132,16 @@ class PatientController extends Controller
         // Load the linked user account so the response can include contact and account status.
         $patient->load('user:id,name,email,username,phone,status');
 
-        return $this->hospitalPage('receptionist/patients/show', 'Patient Profile', [[
-            'code' => $patient->patient_code,
-            'name' => $patient->user?->name,
-            'email' => $patient->user?->email,
-            'phone' => $patient->user?->phone,
-            'status' => $patient->user?->status,
-        ]]);
+        return Inertia::render('receptionist/patients/show', [
+            'title' => 'Patient Profile',
+            'records' => [[
+                'code' => $patient->patient_code,
+                'name' => $patient->user?->name,
+                'email' => $patient->user?->email,
+                'phone' => $patient->user?->phone,
+                'status' => $patient->user?->status,
+            ]],
+        ]);
     }
 
     /**

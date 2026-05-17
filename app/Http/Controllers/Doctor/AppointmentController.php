@@ -12,6 +12,47 @@ use Inertia\Inertia;
 class AppointmentController extends Controller
 {
     /**
+     * List appointments for a doctor.
+     */
+    public function index(Request $request)
+    {
+        $search = $request->string('search');
+        $doctorId = DoctorProfile::query()->where('user_id', $request->user()->id)->value('id');
+
+        $appointments = Appointment::query()
+            ->with(['patient.user'])
+            ->where('doctor_id', $doctorId)
+            ->when($search, function ($query, $search) {
+                $query->whereHas('patient', function ($q) use ($search) {
+                    $q->where('patient_code', 'like', "%{$search}%")
+                      ->orWhereHas('user', fn($u) => $u->where('name', 'like', "%{$search}%"));
+                });
+            })
+            ->latest()
+            ->paginate(12);
+
+        return Inertia::render('doctor/appointments/index', [
+            'appointments' => $appointments,
+            'filters' => [
+                'search' => $search,
+            ],
+            'actions' => [
+                'create' => route('doctor.appointments.create'),
+            ],
+        ]);
+    }
+
+    /**
+     * Show a specific appointment.
+     */
+    public function show(Appointment $appointment)
+    {
+        return Inertia::render('doctor/appointments/show', [
+            'appointment' => $appointment->load(['patient.user']),
+        ]);
+    }
+
+    /**
      * Show appointment creation form.
      */
     public function create()
@@ -60,7 +101,7 @@ class AppointmentController extends Controller
         ]);
 
         // Find the doctor profile linked to the logged-in user.
-        $doctorId = DoctorProfile::query()->where('user_id', auth()->id())->value('id');
+        $doctorId = DoctorProfile::query()->where('user_id', $request->user()->id)->value('id');
 
         $appointment = Appointment::query()->create([
             'patient_id' => $data['patient_id'],

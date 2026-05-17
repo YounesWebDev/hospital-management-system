@@ -4,18 +4,60 @@ namespace App\Http\Controllers\Lab;
 
 use App\Http\Controllers\Controller;
 use App\Models\AnalysisRequest;
+use App\Models\AnalysisResult;
 use App\Models\LabTechnicianProfile;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class AnalysisResultController extends Controller
 {
+    /**
+     * Show a list of analysis results.
+     */
+    public function index()
+    {
+        $results = \App\Models\AnalysisResult::query()
+            ->with(['analysisRequest.patient.user:id,name', 'analysisRequest.doctor.user:id,name'])
+            ->latest()
+            ->get()
+            ->map(fn ($result) => [
+                'id' => $result->id,
+                'patient' => $result->analysisRequest?->patient?->user?->name,
+                'doctor' => $result->analysisRequest?->doctor?->user?->name,
+                'type' => $result->analysisRequest?->analysis_type,
+                'result' => $result->result_text,
+                'created_at' => $result->created_at?->toDateString(),
+            ]);
+
+        return Inertia::render('lab/analysis-results/index', [
+            'title' => 'Analysis Results',
+            'records' => $results,
+        ]);
+    }
+
     /**
      * Show result upload form.
      */
     public function create(AnalysisRequest $analysisRequest)
     {
         // Return the selected request so the upload page knows what result is being created.
-        return response()->json(['analysisRequest' => $analysisRequest]);
+        return Inertia::render('lab/analysis-results/create', [
+            'title' => 'Upload Analysis Result',
+            'records' => [$analysisRequest],
+            'actions' => [
+                'store' => route('lab.analysis-results.store', $analysisRequest),
+            ],
+        ]);
+    }
+
+    /**
+     * Show the specified analysis result.
+     */
+    public function show(AnalysisResult $analysisResult)
+    {
+        return Inertia::render('lab/analysis-results/show', [
+            'result' => $analysisResult->load(['analysisRequest.patient.user', 'analysisRequest.doctor.user', 'labTechnician.user']),
+        ]);
     }
 
     /**
@@ -26,7 +68,7 @@ class AnalysisResultController extends Controller
         // Validate the optional text result and optional uploaded file.
         $data = $request->validate([
             'result_text' => ['nullable', 'string'],
-            'result_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'result_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx', 'max:5120'],
         ]);
 
         // Store uploaded PDF/image results on the public disk.
@@ -35,7 +77,7 @@ class AnalysisResultController extends Controller
             : null;
 
         // Find the lab technician profile linked to the logged-in user.
-        $labTechnicianId = LabTechnicianProfile::query()->where('user_id', auth()->id())->value('id');
+        $labTechnicianId = LabTechnicianProfile::query()->where('user_id', $request->user()->id)->value('id');
 
         // Save the result under the original analysis request.
         $result = $analysisRequest->result()->create([

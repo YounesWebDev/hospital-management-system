@@ -6,8 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link } from '@inertiajs/react';
-import { receipts } from '@/routes/accountant/receipts';
-
+import receipts from "@/routes/accountant/receipts";
 interface Payment {
     id: number;
     amount: string | number;
@@ -96,7 +95,7 @@ export default function PaymentIndexPage({ records = [] }: Props) {
                                     </div>
                                     <div className="pt-3 flex justify-end border-t border-border/50">
                                         <Button asChild variant="outline" size="sm" className="h-7 px-2 text-[11px]">
-                                            <Link href={receipts.show({ payment: payment.receipt }).url}>
+                                            <Link href={receipts.show({ payment: payment.id }).url}>
                                                 View Receipt
                                             </Link>
                                         </Button>

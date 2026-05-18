@@ -308,6 +308,7 @@ export default function FormPage({
                                 <form
                                     action={action}
                                     method="post"
+                                    encType="multipart/form-data"
                                     onSubmit={() => {
                                         setNativeSubmitting(true);
                                         // Reset form fields after a brief delay to allow download to start

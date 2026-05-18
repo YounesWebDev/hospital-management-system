@@ -56,7 +56,12 @@ class AnalysisResultController extends Controller
     public function show(AnalysisResult $analysisResult)
     {
         return Inertia::render('lab/analysis-results/show', [
-            'result' => $analysisResult->load(['analysisRequest.patient.user', 'analysisRequest.doctor.user', 'labTechnician.user']),
+            'result' => $analysisResult->load([
+                'analysisRequest',
+                'analysisRequest.patient.user',
+                'analysisRequest.doctor.user',
+                'labTechnician.user'
+            ])->toArray(),
         ]);
     }
 
@@ -94,6 +99,6 @@ class AnalysisResultController extends Controller
             'status' => 'completed',
         ]);
 
-        return response()->json(['result' => $result]);
+        return redirect()->route('lab.analysis-results.show', $result)->with('success', 'Analysis result uploaded successfully.');
     }
 }

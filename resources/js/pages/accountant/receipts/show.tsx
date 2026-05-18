@@ -31,7 +31,7 @@ export default function ReceiptShow({
                     <div className="space-y-1">
                         <div className="flex items-center gap-3">
                             <h1 className="text-3xl font-semibold tracking-tight">Payment Receipt</h1>
-                            <Badge variant="outline" className="font-mono text-xs">
+                            <Badge className="font-mono text-xs">
                                 {receipt.receipt || 'N/A'}
                             </Badge>
                         </div>

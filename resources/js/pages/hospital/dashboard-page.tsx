@@ -35,33 +35,6 @@ export default function DashboardPage({
                                 </p>
                             </div>
                         </div>
-
-                        <div className="grid gap-3 sm:grid-cols-3">
-                            <div className="rounded-lg border border-border/70 bg-background/90 p-4 shadow-sm">
-                                <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                                    Metrics
-                                </p>
-                                <p className="mt-2 text-2xl font-semibold text-foreground">
-                                    {totalStats}
-                                </p>
-                            </div>
-                            <div className="rounded-lg border border-border/70 bg-background/90 p-4 shadow-sm">
-                                <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                                    Status
-                                </p>
-                                <p className="mt-2 text-sm font-semibold text-foreground">
-                                    Updated on page load
-                                </p>
-                            </div>
-                            <div className="rounded-lg border border-border/70 bg-background/90 p-4 shadow-sm">
-                                <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                                    Purpose
-                                </p>
-                                <p className="mt-2 text-sm font-semibold text-foreground">
-                                    Daily operations
-                                </p>
-                            </div>
-                        </div>
                     </div>
                 </section>
 

@@ -10,6 +10,7 @@ import {
     ReceiptText,
     Stethoscope,
     Users,
+    BellRing,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
@@ -116,6 +117,11 @@ function navigationFor(role: string): NavItem[] {
                 title: 'Appointments',
                 href: receptionist.appointments.index.url(),
                 icon: CalendarDays,
+            },
+            {
+                title: 'Notifications',
+                href: receptionist.notifications.index.url(),
+                icon: BellRing,
             },
         ],
         doctor: [

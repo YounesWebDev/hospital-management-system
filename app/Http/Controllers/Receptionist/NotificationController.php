@@ -15,13 +15,14 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        // Show the newest notifications first and expose the route used to send a new one.
         return Inertia::render('receptionist/notifications/index', [
             'title' => 'Notifications',
+
             'records' => Notification::query()
                 ->with('receiver:id,name')
                 ->latest()
                 ->get(),
+
             'actions' => [
                 'store' => route('receptionist.notifications.store'),
             ],
@@ -33,18 +34,35 @@ class NotificationController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate the reminder fields before creating the notification.
         $data = $request->validate([
             'receiver_id' => ['required', 'exists:users,id'],
             'title' => ['required', 'string', 'max:191'],
             'message' => ['required', 'string'],
         ]);
 
-        // Make sure the receiver is really a patient before sending the reminder.
+        // Make sure the receiver is a patient
         $receiver = User::query()
             ->where('role', 'patient')
             ->findOrFail($data['receiver_id']);
 
+        /**
+         * Prevent duplicate appointment notifications.
+         * If the patient already received an appointment notification,
+         * do not allow sending another one.
+         */
+        $alreadyNotified = Notification::query()
+            ->where('receiver_id', $receiver->id)
+            ->where('type', 'appointment')
+            ->exists();
+
+        if ($alreadyNotified) {
+            return back()->with(
+                'error',
+                'This patient has already been notified.'
+            );
+        }
+
+        // Create notification
         $notification = Notification::query()->create([
             'sender_id' => $request->user()->id,
             'receiver_id' => $receiver->id,
@@ -54,9 +72,16 @@ class NotificationController extends Controller
             'is_read' => false,
         ]);
 
-        // Keep a simple record showing that reception sent a notification.
-        $this->audit('sent_notification', 'notifications', $notification->id, $notification->title);
+        // Audit log
+        $this->audit(
+            'sent_notification',
+            'notifications',
+            $notification->id,
+            $notification->title
+        );
 
-        return response()->noContent();
+        return redirect()
+            ->route('receptionist.notifications.index')
+            ->with('success', 'Notification sent successfully.');
     }
 }

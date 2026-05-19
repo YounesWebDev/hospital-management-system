@@ -41,15 +41,6 @@ const features = [
     },
 ];
 
-const roles = [
-    'Admin',
-    'Receptionist',
-    'Doctor',
-    'Lab Technician',
-    'Accountant',
-    'Patient',
-];
-
 export default function Home() {
     const { auth } = usePage().props;
 
@@ -70,7 +61,7 @@ export default function Home() {
                                     HospitalCare Operations
                                 </Badge>
                                 <h1 className="text-5xl font-bold tracking-tight sm:text-6xl leading-tight">
-                                    Integrated System for <span className="text-primary">Modern Healthcare</span>
+                                    Integrated System for <span className="text-primary block">Modern Healthcare</span>
                                 </h1>
                                 <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
                                     Streamline your clinic with a unified platform for patient registration,
@@ -88,61 +79,6 @@ export default function Home() {
                                     <a href="#features">Explore Features</a>
                                 </Button>
                             </div>
-                        </div>
-
-                        <div className="flex-1 relative">
-                            <Card className="relative overflow-hidden border-border/60 shadow-2xl bg-card/50 backdrop-blur-sm">
-                                <CardHeader className="border-b border-border/60 bg-muted/30 p-6">
-                                    <div className="flex items-center justify-between">
-                                        <div className="space-y-1">
-                                            <p className="text-sm font-semibold">Live System Overview</p>
-                                            <p className="text-xs text-muted-foreground">Real-time activity snapshot</p>
-                                        </div>
-                                        <Badge className="bg-emerald-500 text-white animate-pulse">Live</Badge>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="p-6 space-y-6">
-                                    <div className="grid gap-4 sm:grid-cols-2">
-                                        {[
-                                            ['Patients', '128', Users],
-                                            ['Appointments', '24', CalendarDays],
-                                            ['Lab requests', '16', FlaskConical],
-                                            ['Payments', '38', ReceiptText],
-                                        ].map(([label, value, Icon]) => (
-                                            <div
-                                                key={label as string}
-                                                className="rounded-xl border bg-background p-4 transition-all hover:border-primary/50"
-                                            >
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                                        {label as string}
-                                                    </p>
-                                                    <Icon className="size-4 text-primary" />
-                                                </div>
-                                                <p className="text-2xl font-bold tracking-tight">
-                                                    {value as string}
-                                                </p>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="space-y-3 rounded-xl bg-muted/50 p-4 border border-border/40">
-                                        {[
-                                            'Doctor created a new appointment',
-                                            'Lab technician uploaded analysis result',
-                                            'Accountant processed a payment',
-                                        ].map((item) => (
-                                            <div
-                                                key={item}
-                                                className="flex items-center gap-3 text-sm text-muted-foreground"
-                                            >
-                                                <ShieldCheck className="size-4 text-emerald-600" />
-                                                <span>{item}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </CardContent>
-                            </Card>
                         </div>
                     </div>
 
@@ -168,27 +104,6 @@ export default function Home() {
                                         </CardDescription>
                                     </CardHeader>
                                 </Card>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Roles Section */}
-                    <div id="roles" className="border-t pt-16 space-y-10">
-                        <div className="text-center space-y-3">
-                            <h2 className="text-3xl font-bold tracking-tight">Role-Based Access Control</h2>
-                            <p className="text-muted-foreground max-w-2xl mx-auto">
-                                Specialized interfaces for every member of the medical team.
-                            </p>
-                        </div>
-                        <div className="flex flex-wrap justify-center gap-3">
-                            {roles.map((role) => (
-                                <Badge
-                                    key={role}
-                                    variant="secondary"
-                                    className="rounded-full px-4 py-1.5 text-sm font-medium"
-                                >
-                                    {role}
-                                </Badge>
                             ))}
                         </div>
                     </div>

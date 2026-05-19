@@ -4,32 +4,49 @@ namespace App\Http\Controllers\Receptionist;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\Notification;
 use Inertia\Inertia;
 
 class AppointmentController extends Controller
 {
     /**
-     * Reception can view appointments but not create them.
+     * Display appointments list.
      */
     public function index()
     {
-        // Load each appointment with the patient and doctor names shown to reception.
         $appointments = Appointment::query()
-            ->with(['patient.user:id,name', 'doctor.user:id,name'])
-            ->latest('appointment_date')
-            ->get()
-            // Shape each appointment into a small row for the frontend list.
-            ->map(fn (Appointment $appointment): array => [
-                'patient' => $appointment->patient?->user?->name,
-                'doctor' => $appointment->doctor?->user?->name,
-                'date' => $appointment->appointment_date?->toDateString(),
-                'time' => $appointment->appointment_time,
-                'status' => $appointment->status,
-            ]);
+            ->with([
+                'patient.user:id,name',
+                'doctor.user:id,name',
+            ])
+            ->latest()
+            ->get();
 
         return Inertia::render('receptionist/appointments/index', [
-            'title' => 'Appointments',
-            'records' => $appointments,
+            'records' => $appointments->map(function ($appointment) {
+                return [
+                    'id' => $appointment->id,
+
+                    'patient' => $appointment->patient?->user?->name,
+
+                    'patient_user_id' => $appointment->patient?->user?->id,
+
+                    'doctor' => $appointment->doctor?->user?->name,
+
+                    'date' => $appointment->appointment_date?->toDateString(),
+
+                    'time' => $appointment->appointment_time,
+
+                    'status' => $appointment->status,
+
+                    'is_soon' => $appointment->appointment_date ? now()->diffInDays($appointment->appointment_date, false) === 3 : false,
+
+                    'is_notified' => Notification::query()
+                        ->where('receiver_id', $appointment->patient?->user?->id)
+                        ->where('type', 'appointment')
+                        ->exists(),
+                ];
+            }),
         ]);
     }
 }

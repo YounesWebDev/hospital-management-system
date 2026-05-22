@@ -150,16 +150,18 @@ export default function AnalysisRequestShowPage({ title, records = [], actions }
                             </Button>
                         </form>
                     )}
-                    <Button
-                        asChild
-                        variant="outline"
-                        className="flex items-center gap-2"
-                    >
-                        <Link href={actions.result}>
-                            <CheckCircle className="size-4" />
-                            Record Results
-                        </Link>
-                    </Button>
+                    {request.status !== 'completed' && (
+                        <Button
+                            asChild
+                            variant="outline"
+                            className="flex items-center gap-2"
+                        >
+                            <Link href={actions.result}>
+                                <CheckCircle className="size-4" />
+                                Record Results
+                            </Link>
+                        </Button>
+                    )}
                 </div>
             </div>
         </>

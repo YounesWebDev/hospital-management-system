@@ -38,6 +38,7 @@ export type FormField = {
     options?: FieldOption[];
     required?: boolean;
     accept?: string;
+    min?: string;
     visibleWhen?: {
         field: string;
         equals: string | string[];
@@ -217,6 +218,7 @@ export default function FormPage({
                             <Calendar
                                 mode="single"
                                 selected={selectedDate}
+                                disabled={field.min ? { before: parseISO(field.min) } : undefined}
                                 onSelect={(date) => {
                                     setFieldValues((current) => ({
                                         ...current,

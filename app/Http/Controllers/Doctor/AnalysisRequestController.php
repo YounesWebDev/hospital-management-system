@@ -89,7 +89,7 @@ class AnalysisRequestController extends Controller
         ]);
 
         // Find the doctor profile linked to the logged-in user.
-        $doctorId = DoctorProfile::query()->where('user_id', auth()->id())->value('id');
+        $doctorId = DoctorProfile::query()->where('user_id', $request->user()->id)->value('id');
 
         $analysisRequest = AnalysisRequest::query()->create([
             'patient_id' => $data['patient_id'],

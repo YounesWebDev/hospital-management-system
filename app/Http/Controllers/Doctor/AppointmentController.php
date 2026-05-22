@@ -79,7 +79,7 @@ class AppointmentController extends Controller
                         ['label' => 'Operation', 'value' => 'operation'],
                     ],
                 ],
-                ['name' => 'appointment_date', 'label' => 'Date', 'type' => 'date', 'required' => true],
+                ['name' => 'appointment_date', 'label' => 'Date', 'type' => 'date', 'required' => true, 'min' => now()->toDateString()],
                 ['name' => 'appointment_time', 'label' => 'Time', 'type' => 'time', 'required' => true],
                 ['name' => 'notes', 'label' => 'Notes', 'type' => 'textarea'],
             ],
@@ -95,7 +95,7 @@ class AppointmentController extends Controller
         $data = $request->validate([
             'patient_id' => ['required', 'exists:patient_profiles,id'],
             'type' => ['required', 'in:regular,operation'],
-            'appointment_date' => ['required', 'date'],
+            'appointment_date' => ['required', 'date', 'after_or_equal:today'],
             'appointment_time' => ['required'],
             'notes' => ['nullable', 'string'],
         ]);

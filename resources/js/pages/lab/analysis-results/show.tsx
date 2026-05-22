@@ -221,6 +221,7 @@ export default function AnalysisResultShowPage({ result }: Props) {
                                         <Button asChild size="sm" className="h-8">
                                             <a
                                                 href={`/storage/${result.file_path}`}
+                                                download
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="flex items-center gap-2"

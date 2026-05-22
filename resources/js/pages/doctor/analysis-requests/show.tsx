@@ -6,6 +6,7 @@ import {
     FileText,
     Beaker,
     ArrowLeft,
+    Download,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,12 @@ interface AnalysisRequest {
     description: string;
     status: string;
     created_at: string;
+
+    result?: {
+        result_text: string | null;
+        file_path: string | null;
+        uploaded_at: string;
+    };
 }
 
 interface Props {
@@ -61,7 +68,7 @@ export default function AnalysisRequestShowPage({
                     >
                         <Link
                             href={index.url()}
-                            className="flex items-center hover:text-primary gap-1"
+                            className="flex items-center gap-1 hover:text-primary"
                         >
                             <ArrowLeft className="size-4" />
                             Back to List
@@ -92,7 +99,12 @@ export default function AnalysisRequestShowPage({
 
                                         <CardDescription>
                                             Details of the laboratory
-                                            analysis requested for {analysisRequest.patient.user.name}.
+                                            analysis requested for{' '}
+                                            {
+                                                analysisRequest.patient
+                                                    .user.name
+                                            }
+                                            .
                                         </CardDescription>
                                     </div>
                                 </div>
@@ -109,14 +121,12 @@ export default function AnalysisRequestShowPage({
                                             <User className="size-4 text-primary" />
 
                                             {
-                                                analysisRequest
-                                                    .patient.user
-                                                    .name
+                                                analysisRequest.patient
+                                                    .user.name
                                             }{' '}
                                             (
                                             {
-                                                analysisRequest
-                                                    .patient
+                                                analysisRequest.patient
                                                     .patient_code
                                             }
                                             )
@@ -180,6 +190,70 @@ export default function AnalysisRequestShowPage({
                                         </p>
                                     </div>
                                 </div>
+
+                                {analysisRequest.result && (
+                                    <>
+                                        <Separator className="bg-primary" />
+
+                                        <div className="space-y-6">
+                                            <div className="space-y-2">
+                                                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                                    <FileText className="size-4 text-primary" />
+                                                    Analysis Findings
+                                                </div>
+
+                                                <div className="flex flex-col gap-1 rounded-xl border border-primary bg-card/50 p-4 transition-colors hover:bg-card/80">
+                                                    <p className="whitespace-pre-wrap text-base leading-relaxed">
+                                                        {analysisRequest
+                                                            .result
+                                                            .result_text ||
+                                                            'No detailed text result provided.'}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {analysisRequest.result
+                                                .file_path && (
+                                                <div className="flex items-center justify-between rounded-xl border border-primary/20 bg-primary/5 p-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="rounded-md bg-primary/10 p-2">
+                                                            <FileText className="size-5 text-primary" />
+                                                        </div>
+
+                                                        <div className="space-y-1">
+                                                            <p className="text-sm font-medium">
+                                                                Supporting
+                                                                Document
+                                                            </p>
+
+                                                            <p className="text-xs text-muted-foreground">
+                                                                PDF or image
+                                                                analysis result
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <Button
+                                                        asChild
+                                                        size="sm"
+                                                        className="h-8"
+                                                    >
+                                                        <a
+                                                            href={`/storage/${analysisRequest.result.file_path}`}
+                                                            download
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="flex items-center gap-2"
+                                                        >
+                                                            <Download className="size-3" />
+                                                            Download File
+                                                        </a>
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
                             </CardContent>
                         </Card>
                     </div>
@@ -206,9 +280,8 @@ export default function AnalysisRequestShowPage({
 
                                         <span className="font-medium">
                                             {
-                                                analysisRequest
-                                                    .patient.user
-                                                    .name
+                                                analysisRequest.patient
+                                                    .user.name
                                             }
                                         </span>
                                     </div>
@@ -230,15 +303,19 @@ export default function AnalysisRequestShowPage({
                                             Status:
                                         </span>
 
-                                        <Badge className={`h-5 px-2 text-[10px] capitalize text-white ${
-                                            analysisRequest.status === 'completed'
-                                            ? 'bg-green-500'
-                                            : analysisRequest.status === 'pending'
-                                            ? 'bg-orange-500'
-                                            : analysisRequest.status === 'in_progress'
-                                            ? 'bg-blue-500'
-                                            : 'bg-gray-400'
-                                        }`}
+                                        <Badge
+                                            className={`h-5 px-2 text-[10px] capitalize text-white ${
+                                                analysisRequest.status ===
+                                                'completed'
+                                                    ? 'bg-green-500'
+                                                    : analysisRequest.status ===
+                                                        'pending'
+                                                      ? 'bg-orange-500'
+                                                      : analysisRequest.status ===
+                                                          'in_progress'
+                                                        ? 'bg-blue-500'
+                                                        : 'bg-gray-400'
+                                            }`}
                                         >
                                             {
                                                 analysisRequest.status

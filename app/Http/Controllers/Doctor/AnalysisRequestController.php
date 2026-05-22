@@ -48,7 +48,7 @@ class AnalysisRequestController extends Controller
     public function show(AnalysisRequest $analysisRequest)
     {
         return Inertia::render('doctor/analysis-requests/show', [
-            'analysisRequest' => $analysisRequest->load(['patient.user']),
+            'analysisRequest' => $analysisRequest->load(['patient.user', 'result']),
         ]);
     }
 
